@@ -5,6 +5,7 @@ import sys
 import twitter
 import os
 
+
 def open_and_read_file(file_path):
     """Take file path as string; return text as string.
 
@@ -37,17 +38,16 @@ def make_chains(text_string, n_gram):
 
         >>> chains[('hi', 'there')]
         ['mary', 'juanita']
-        
+
         >>> chains[('there','juanita')]
         [None]
     """
     words = text_string.split()
-    
 
     chains = {}
-    
+
     for i in range(len(words) - n_gram):
-        
+
         words_key = tuple(words[i:n_gram + i])
 
         add_word = words[i + n_gram]
@@ -57,8 +57,6 @@ def make_chains(text_string, n_gram):
         else:
             chains[words_key] = [add_word]
 
-   
-    
     return chains
 
 
@@ -68,25 +66,25 @@ def make_text(chains, n_gram):
     words = []
     keys_lst = list(chains.keys())
 
-    #start point
+    # start point
     link_tpl = choice(keys_lst)
 
     while not link_tpl[0][0].isupper():
         link_tpl = choice(keys_lst)
 
     words.extend(list(link_tpl))
-    
+
     count_char = 0
-    while link_tpl in chains and count_char < 281:
-        
+    while link_tpl in chains and count_char < 260:
+
         link_word_str = choice(chains[link_tpl])
         words.append(link_word_str)
         count_char = len(' '.join(words))
-        #if count_char > 279 and link_tpl[-1][-1] in ".!?":
-         #   break
-        #else:
+        # print('count char ', count_char)
+        # if count_char > 279 and link_tpl[-1][-1] in ".!?":
+        #   break
+        # else:
         link_tpl = tuple(words[-n_gram:])
-
 
     return " ".join(words)
 
@@ -99,6 +97,12 @@ def make_tweet(random_text):
         access_token_key=os.environ['TWITTER_ACCESS_TOKEN_KEY'],
         access_token_secret=os.environ['TWITTER_ACCESS_TOKEN_SECRET']
     )
+
+    old_status = api.GetHomeTimeline(count=1)
+
+    print(old_status[0].text)
+
+    print('\n')
 
     status = api.PostUpdate(random_text)
     print(status.text)
@@ -116,8 +120,7 @@ while True:
 
     # Produce random text
     random_text = make_text(chains, n_gram)
-    print(random_text)
-    print('\n')
+    # print(random_text)
 
     make_tweet(random_text)
 
